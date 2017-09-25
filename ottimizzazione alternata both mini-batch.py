@@ -1,5 +1,3 @@
-#TITOLO
-
 #!/usr/bin/python
 """
 # Fully Differentiable Deep Neural Decision Forest
@@ -167,7 +165,7 @@ DEPTH   = 3                 # Depth of a tree
 N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
-N_BATCH = 64               # Number of data points per mini-batch
+N_BATCH = 128               # Number of data points per mini-batch
 
 
 def init_weights(shape):
