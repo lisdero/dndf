@@ -7,7 +7,7 @@ N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
-ALL_BATCH = 55000
+ALL_BATCH = 300
 
 def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01))
@@ -284,8 +284,10 @@ sess.run(tf.global_variables_initializer())
 
 for i in range(100):
     # One epoch
-    sess.run(train_step_leaves, feed_dict={X_all: trX, Y_all: trY,
-                                    p_keep_conv: 0.8, p_keep_hidden: 0.5})
+    for start, end in zip(range(0, len(trX), ALL_BATCH), range(ALL_BATCH, len(trX), ALL_BATCH)):
+        sess.run(train_step_leaves, feed_dict={X_all: trX[start:end], Y_all: trY[start:end],
+                                        p_keep_conv: 0.8, p_keep_hidden: 0.5})
+    
     
     for start, end in zip(range(0, len(trX), N_BATCH), range(N_BATCH, len(trX), N_BATCH)):
         sess.run(train_step_nodes, feed_dict={X: trX[start:end], Y: trY[start:end],
