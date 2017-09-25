@@ -427,10 +427,15 @@ py_x_all = tf.reduce_mean(py_x_e_all, 0)
 
 # cross entropy loss
 cost = tf.reduce_mean(-tf.multiply(tf.log(py_x), Y))
+
 cost2 = tf.reduce_mean(-tf.multiply(tf.log(py_x_all), Y_all))
+
 # cost = tf.reduce_mean(tf.nn.cross_entropy_with_logits(py_x, Y))
+
 train_step_nodes = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost,var_list=[w,w2,w3,w4_ensemble,w_d_ensemble])
+
 train_step_leaves = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost2,var_list=[w_l_ensemble])
+
 predict = tf.argmax(py_x, 1)
 
 sess = tf.Session()
