@@ -1,162 +1,3 @@
-#!/usr/bin/python
-"""
-# Fully Differentiable Deep Neural Decision Forest
-This is an implementation of a simple modification to the deep-neural decision
-forest [Kontschieder et al.] usng TensorFlow. The modification allows the joint
-optimization of decision nodes and leaf nodes which speeds up the training
-(haven't compared yet).
-## Motivation:
-Deep Neural Deicision Forest, ICCV 2015, proposed a great way to incorporate a
-neural network with a decision forest. During the optimization (training), the
-terminal (leaf) node has to be updated after each epoch.
-This alternating optimization scheme is usually slower than joint optimization
-since other variable that is not being optimized slows down the optimization.
-This code is just a proof-of-concept that
-1. one can train both decision nodes and leaf nodes $\pi$ jointly using
-parametric formulation of leaf node.
-2. one can implement the idea in a symbolic math library very easily.
-## Formulation
-The leaf node probability can be parametrized using a $softmax(W_{leaf})$.
-i.e. let a vector $W_{leaf} \in \mathbb{R}^N$ where N is the number of classes.
-Then taking the soft max operation on W_{leaf} would give us
-$$
-softmax(W_{leaf}) = \frac{e^{-w_i}}{\sum_j e^{-w_j}}
-$$
-which is always in a simplex. Thus, without any constraint, we can parametrize
-the leaf nodes and can compute the gradient of $L$ w.r.t $W_{leaf}$. This
-allows us to jointly optimize both leaf nodes and decision nodes.
-## Experiment
-I tested a simple (3 convolution + 2 fc) network for the experiment.
-On the MNIST, the simple Deep-NDF got 99.5% accuracy on the test set after 100
-epochs of training. After just 10 epochs, it reaches 99.1% and after 100
-epochs, it reaches 99.5%
-The following is the number of epoch and training accuracy after each epoch.
-```
-0 0.955829326923
-1 0.979166666667
-2 0.982572115385
-3 0.988080929487
-4 0.988181089744
-5 0.988481570513
-6 0.987980769231
-7 0.989583333333
-8 0.991185897436
-9 0.991586538462
-10 0.991987179487
-11 0.992888621795
-12 0.993088942308
-13 0.992988782051
-14 0.992988782051
-15 0.992588141026
-16 0.993289262821
-17 0.99358974359
-18 0.992387820513
-19 0.993790064103
-20 0.994090544872
-21 0.993289262821
-22 0.993489583333
-23 0.99358974359
-24 0.993990384615
-25 0.993689903846
-26 0.99469150641
-27 0.994491185897
-28 0.994090544872
-29 0.994090544872
-30 0.99469150641
-31 0.994090544872
-32 0.994791666667
-33 0.993790064103
-34 0.994190705128
-35 0.994591346154
-36 0.993990384615
-37 0.995092147436
-38 0.994391025641
-39 0.993389423077
-40 0.994991987179
-41 0.994991987179
-42 0.994991987179
-43 0.994491185897
-44 0.995192307692
-45 0.995192307692
-46 0.994791666667
-47 0.995092147436
-48 0.994991987179
-49 0.994290865385
-50 0.994591346154
-51 0.994791666667
-52 0.995092147436
-53 0.995492788462
-54 0.994591346154
-55 0.995092147436
-56 0.994190705128
-57 0.99469150641
-58 0.99469150641
-59 0.994090544872
-60 0.994290865385
-61 0.994891826923
-62 0.994791666667
-63 0.994491185897
-64 0.994591346154
-65 0.994290865385
-66 0.99469150641
-67 0.994391025641
-68 0.994791666667
-69 0.99469150641
-70 0.994791666667
-71 0.994591346154
-72 0.994891826923
-73 0.994791666667
-74 0.995192307692
-75 0.995392628205
-76 0.995392628205
-77 0.995292467949
-78 0.994791666667
-79 0.995092147436
-80 0.995392628205
-81 0.994891826923
-82 0.995092147436
-83 0.994891826923
-84 0.995092147436
-85 0.995092147436
-86 0.995292467949
-87 0.994891826923
-88 0.995693108974
-89 0.994391025641
-90 0.994591346154
-91 0.995592948718
-92 0.995292467949
-93 0.995192307692
-94 0.994791666667
-95 0.995192307692
-96 0.995092147436
-97 0.994591346154
-98 0.995292467949
-99 0.995392628205
-```
-## Slides
-[SDL Reading Group Slides](https://docs.google.com/presentation/d/1Ze7BAiWbMPyF0ax36D-aK00VfaGMGvvgD_XuANQW1gU/edit?usp=sharing)
-## References
-[Kontschieder et al.] Deep Neural Decision Forests, ICCV 2015
-## License
-The MIT License (MIT)
-Copyright (c) 2016 Christopher B. Choy (chrischoy@ai.stanford.edu)
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
 import tensorflow as tf
 import numpy as np
 import tensorflow.examples.tutorials.mnist.input_data as input_data
@@ -166,7 +7,7 @@ N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
-
+ALL_BATCH = 300
 
 def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01))
@@ -215,6 +56,10 @@ def model(X, w, w2, w3, w4_e, w_d_e, w_l_e, p_keep_conv, p_keep_hidden):
         leaf_p_e.append(leaf_p)
     return decision_p_e, leaf_p_e
 
+
+
+
+
 ##################################################
 # Load dataset
 ##################################################
@@ -228,6 +73,8 @@ teX = teX.reshape(-1, 28, 28, 1)
 X = tf.placeholder("float", [N_BATCH, 28, 28, 1])
 Y = tf.placeholder("float", [N_BATCH, N_LABEL])
 
+X_all = tf.placeholder("float", [ALL_BATCH, 28, 28, 1])
+Y_all = tf.placeholder("float", [ALL_BATCH, N_LABEL])
 ##################################################
 # Initialize network weights
 ##################################################
@@ -253,6 +100,9 @@ p_keep_hidden = tf.placeholder("float")
 decision_p_e, leaf_p_e = model(X, w, w2, w3, w4_ensemble, w_d_ensemble,
                                w_l_ensemble, p_keep_conv, p_keep_hidden)
 
+decision_p_e_all, leaf_p_e_all = model(X_all, w, w2, w3, w4_ensemble, w_d_ensemble,
+                               w_l_ensemble, p_keep_conv, p_keep_hidden)
+
 flat_decision_p_e = []
 
 # iterate over each tree
@@ -265,6 +115,20 @@ for decision_p in decision_p_e:
     # Flatten/vectorize the decision probabilities for efficient indexing
     flat_decision_p = tf.reshape(decision_p_pack, [-1])
     flat_decision_p_e.append(flat_decision_p)
+
+flat_decision_p_e_all = []
+
+# iterate over each tree
+for decision_p_all in decision_p_e_all:
+    # Compute the complement of d, which is 1 - d
+    # where d is the sigmoid of fully connected output
+    decision_p_comp_all = tf.subtract(tf.ones_like(decision_p_all), decision_p_all)
+    # Concatenate both d, 1-d
+    decision_p_pack_all = tf.stack([decision_p_all, decision_p_comp_all])
+    # Flatten/vectorize the decision probabilities for efficient indexing
+    flat_decision_p_all = tf.reshape(decision_p_pack_all, [-1])
+    flat_decision_p_e_all.append(flat_decision_p_all)
+
 
 # 0 index of each data instance in a mini-batch
 batch_0_indices = \
@@ -331,6 +195,45 @@ for d in range(1, DEPTH + 1):
         mu_e_update.append(mu)
     mu_e = mu_e_update
 
+batch_0_indices_all = \
+    tf.tile(tf.expand_dims(tf.range(0, ALL_BATCH * N_LEAF, N_LEAF), 1),
+            [1, N_LEAF])
+
+in_repeat_all = int(N_LEAF / 2)
+out_repeat_all = int(ALL_BATCH)
+
+batch_complement_indices_all = \
+    np.array([[0] * in_repeat_all, [ALL_BATCH * N_LEAF] * in_repeat_all]
+             * out_repeat_all).reshape(ALL_BATCH, N_LEAF)
+
+
+mu_e_all = []
+
+# iterate over each tree
+for i, flat_decision_p_all in enumerate(flat_decision_p_e_all):
+    mu_all = tf.gather(flat_decision_p_all,
+                   tf.add(batch_0_indices_all, batch_complement_indices_all))
+    mu_e_all.append(mu_all)
+
+# from the second layer to the last layer, we make the decision nodes
+for d in range(1, DEPTH + 1):
+    indices_all = tf.range(2 ** d, 2 ** (d + 1)) - 1
+    tile_indices_all = tf.reshape(tf.tile(tf.expand_dims(indices_all, 1),
+                                      [1, 2 ** (DEPTH - d + 1)]), [1, -1])
+    batch_indices_all = tf.add(batch_0_indices_all, tf.tile(tile_indices_all, [ALL_BATCH, 1]))
+    in_repeat_all = int(in_repeat_all / 2)
+    out_repeat_all = int(out_repeat_all * 2)
+    # Again define the indices that picks d and 1-d for the node
+    batch_complement_indices_all = \
+        np.array([[0] * in_repeat_all, [ALL_BATCH * N_LEAF] * in_repeat_all]
+                 * out_repeat_all).reshape(ALL_BATCH, N_LEAF)
+    mu_e_update_all = []
+    for mu_all, flat_decision_p_all in zip(mu_e_all, flat_decision_p_e_all):
+        mu_all = tf.multiply(mu_all, tf.gather(flat_decision_p_all,
+                                  tf.add(batch_indices_all, batch_complement_indices_all)))
+        mu_e_update_all.append(mu_all)
+    mu_e_all = mu_e_update_all
+
 ##################################################
 # Define p(y|x)
 ##################################################
@@ -345,6 +248,20 @@ for mu, leaf_p in zip(mu_e, leaf_p_e):
 py_x_e = tf.stack(py_x_e)
 py_x = tf.reduce_mean(py_x_e, 0)
 
+
+
+py_x_e_all = []
+for mu_all, leaf_p_all in zip(mu_e_all, leaf_p_e_all):
+    # average all the leaf p
+    py_x_tree_all = tf.reduce_mean(
+        tf.multiply(tf.tile(tf.expand_dims(mu_all, 2), [1, 1, N_LABEL]),
+               tf.tile(tf.expand_dims(leaf_p_all, 0), [ALL_BATCH, 1, 1])), 1)
+    py_x_e_all.append(py_x_tree_all)
+
+py_x_e_all = tf.stack(py_x_e_all)
+py_x_all = tf.reduce_mean(py_x_e_all, 0)
+
+
 ##################################################
 # Define cost and optimization method
 ##################################################
@@ -352,9 +269,14 @@ py_x = tf.reduce_mean(py_x_e, 0)
 # cross entropy loss
 cost = tf.reduce_mean(-tf.multiply(tf.log(py_x), Y))
 
+cost2 = tf.reduce_mean(-tf.multiply(tf.log(py_x_all), Y_all))
+
 # cost = tf.reduce_mean(tf.nn.cross_entropy_with_logits(py_x, Y))
+
 train_step_nodes = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost,var_list=[w,w2,w3,w4_ensemble,w_d_ensemble])
-train_step_leaves = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost,var_list=[w_l_ensemble])
+
+train_step_leaves = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost2,var_list=[w_l_ensemble])
+
 predict = tf.argmax(py_x, 1)
 
 sess = tf.Session()
@@ -362,8 +284,10 @@ sess.run(tf.global_variables_initializer())
 
 for i in range(100):
     # One epoch
-    sess.run(train_step_leaves, feed_dict={X: trX, Y: trY,
-                                    p_keep_conv: 0.8, p_keep_hidden: 0.5})
+    for start, end in zip(range(0, len(trX), ALL_BATCH), range(ALL_BATCH, len(trX), ALL_BATCH)):
+        sess.run(train_step_leaves, feed_dict={X_all: trX[start:end], Y_all: trY[start:end],
+                                        p_keep_conv: 0.8, p_keep_hidden: 0.5})
+    
     
     for start, end in zip(range(0, len(trX), N_BATCH), range(N_BATCH, len(trX), N_BATCH)):
         sess.run(train_step_nodes, feed_dict={X: trX[start:end], Y: trY[start:end],
