@@ -1,7 +1,7 @@
 
 import os
 os.getcwd()
-os.chdir('C:\\Users\Flavio Lisdero\Desktop\Tesi_safe')
+os.chdir('/home/lisdero/dndf')
 
 import pickle
 
