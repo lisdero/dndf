@@ -338,7 +338,7 @@ predict = tf.argmax(py_x, 1)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-for i in range(100):
+for i in range(1000):
     # One epoch
     for start, end in zip(range(0, len(trX), ALL_BATCH), range(ALL_BATCH, len(trX), ALL_BATCH)):
         sess.run(train_step_leaves, feed_dict={X_all: trX[start:end], Y_all: trY[start:end],
