@@ -117,8 +117,8 @@ trX, traY = data[0:40000], labels[0:40000]
 teX, tesY = data[40001:50000], labels[40001:50000]
 trX = trX.reshape(-1, 28, 28, 1)
 teX = teX.reshape(-1, 28, 28, 1)
-trY= np.zeros([len(trY),10],dtype=int)
-teY= np.zeros([len(teY),10],dtype=int)
+trY= np.zeros([len(traY),10],dtype=int)
+teY= np.zeros([len(tesY),10],dtype=int)
 
 for i in range(len(traY)):
     a=traY[i]
