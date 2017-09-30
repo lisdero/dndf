@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 import tensorflow.examples.tutorials.mnist.input_data as input_data
 
 DEPTH   = 3                 # Depth of a tree
@@ -200,7 +201,9 @@ predict = tf.argmax(py_x, 1)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-for i in range(100):
+acc_cong=np.zeros([2,30])
+
+for i in range(30):
     # One epoch
     for start, end in zip(range(0, len(trX), N_BATCH), range(N_BATCH, len(trX), N_BATCH)):
         sess.run(train_step, feed_dict={X: trX[start:end], Y: trY[start:end],
@@ -211,4 +214,6 @@ for i in range(100):
         results.extend(np.argmax(teY[start:end], axis=1) ==
             sess.run(predict, feed_dict={X: teX[start:end], p_keep_conv: 1.0,
                                          p_keep_hidden: 1.0}))
+    acc_cong[0,i]=np.mean(results)
+    acc_cong[1,i]=i
     print('Epoch: %d, Test Accuracy: %f' % (i + 1, np.mean(results)))
