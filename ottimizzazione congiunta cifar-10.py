@@ -66,11 +66,11 @@ import random
 random.seed(1)
 
 def init_weights(shape):
-    return tf.Variable(tf.random_normal(shape, stddev=0.01))
+    return tf.Variable(tf.random_normal(shape, stddev=0.01,seed=1))
 
 
 def init_prob_weights(shape, minval=-5, maxval=5):
-    return tf.Variable(tf.random_uniform(shape, minval, maxval))
+    return tf.Variable(tf.random_uniform(shape, minval, maxval,seed=2))
 
 
 def model(X, w, w2, w3, w4_e, w_d_e, w_l_e, p_keep_conv, p_keep_hidden):
