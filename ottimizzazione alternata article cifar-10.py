@@ -1,4 +1,5 @@
-
+import random
+random.seed(1)
 import os
 os.getcwd()
 os.chdir('/home/lisdero/dndf')

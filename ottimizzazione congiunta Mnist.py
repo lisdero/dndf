@@ -2,7 +2,8 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow.examples.tutorials.mnist.input_data as input_data
-
+import random
+random.seed(1)
 DEPTH   = 3                 # Depth of a tree
 N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
