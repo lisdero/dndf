@@ -62,7 +62,7 @@ N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
-ALL_BATCH = 300
+
 
 def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01))
@@ -135,8 +135,7 @@ for i in range(len(tesY)):
 X = tf.placeholder("float", [N_BATCH, 28, 28, 1])
 Y = tf.placeholder("float", [N_BATCH, N_LABEL])
 
-X_all = tf.placeholder("float", [ALL_BATCH, 28, 28, 1])
-Y_all = tf.placeholder("float", [ALL_BATCH, N_LABEL])
+
 
 w = init_weights([3, 3, 1, 32])
 w2 = init_weights([3, 3, 32, 64])
@@ -156,8 +155,7 @@ p_keep_hidden = tf.placeholder("float")
 decision_p_e, leaf_p_e = model(X, w, w2, w3, w4_ensemble, w_d_ensemble,
                                w_l_ensemble, p_keep_conv, p_keep_hidden)
 
-decision_p_e_all, leaf_p_e_all = model(X_all, w, w2, w3, w4_ensemble, w_d_ensemble,
-                               w_l_ensemble, p_keep_conv, p_keep_hidden)
+
 
 flat_decision_p_e = []
 
@@ -172,18 +170,7 @@ for decision_p in decision_p_e:
     flat_decision_p = tf.reshape(decision_p_pack, [-1])
     flat_decision_p_e.append(flat_decision_p)
 
-flat_decision_p_e_all = []
 
-# iterate over each tree
-for decision_p_all in decision_p_e_all:
-    # Compute the complement of d, which is 1 - d
-    # where d is the sigmoid of fully connected output
-    decision_p_comp_all = tf.subtract(tf.ones_like(decision_p_all), decision_p_all)
-    # Concatenate both d, 1-d
-    decision_p_pack_all = tf.stack([decision_p_all, decision_p_comp_all])
-    # Flatten/vectorize the decision probabilities for efficient indexing
-    flat_decision_p_all = tf.reshape(decision_p_pack_all, [-1])
-    flat_decision_p_e_all.append(flat_decision_p_all)
 
 
 # 0 index of each data instance in a mini-batch
@@ -251,44 +238,7 @@ for d in range(1, DEPTH + 1):
         mu_e_update.append(mu)
     mu_e = mu_e_update
 
-batch_0_indices_all = \
-    tf.tile(tf.expand_dims(tf.range(0, ALL_BATCH * N_LEAF, N_LEAF), 1),
-            [1, N_LEAF])
 
-in_repeat_all = int(N_LEAF / 2)
-out_repeat_all = int(ALL_BATCH)
-
-batch_complement_indices_all = \
-    np.array([[0] * in_repeat_all, [ALL_BATCH * N_LEAF] * in_repeat_all]
-             * out_repeat_all).reshape(ALL_BATCH, N_LEAF)
-
-
-mu_e_all = []
-
-# iterate over each tree
-for i, flat_decision_p_all in enumerate(flat_decision_p_e_all):
-    mu_all = tf.gather(flat_decision_p_all,
-                   tf.add(batch_0_indices_all, batch_complement_indices_all))
-    mu_e_all.append(mu_all)
-
-# from the second layer to the last layer, we make the decision nodes
-for d in range(1, DEPTH + 1):
-    indices_all = tf.range(2 ** d, 2 ** (d + 1)) - 1
-    tile_indices_all = tf.reshape(tf.tile(tf.expand_dims(indices_all, 1),
-                                      [1, 2 ** (DEPTH - d + 1)]), [1, -1])
-    batch_indices_all = tf.add(batch_0_indices_all, tf.tile(tile_indices_all, [ALL_BATCH, 1]))
-    in_repeat_all = int(in_repeat_all / 2)
-    out_repeat_all = int(out_repeat_all * 2)
-    # Again define the indices that picks d and 1-d for the node
-    batch_complement_indices_all = \
-        np.array([[0] * in_repeat_all, [ALL_BATCH * N_LEAF] * in_repeat_all]
-                 * out_repeat_all).reshape(ALL_BATCH, N_LEAF)
-    mu_e_update_all = []
-    for mu_all, flat_decision_p_all in zip(mu_e_all, flat_decision_p_e_all):
-        mu_all = tf.multiply(mu_all, tf.gather(flat_decision_p_all,
-                                  tf.add(batch_indices_all, batch_complement_indices_all)))
-        mu_e_update_all.append(mu_all)
-    mu_e_all = mu_e_update_all
 
 ##################################################
 # Define p(y|x)
@@ -306,16 +256,7 @@ py_x = tf.reduce_mean(py_x_e, 0)
 
 
 
-py_x_e_all = []
-for mu_all, leaf_p_all in zip(mu_e_all, leaf_p_e_all):
-    # average all the leaf p
-    py_x_tree_all = tf.reduce_mean(
-        tf.multiply(tf.tile(tf.expand_dims(mu_all, 2), [1, 1, N_LABEL]),
-               tf.tile(tf.expand_dims(leaf_p_all, 0), [ALL_BATCH, 1, 1])), 1)
-    py_x_e_all.append(py_x_tree_all)
 
-py_x_e_all = tf.stack(py_x_e_all)
-py_x_all = tf.reduce_mean(py_x_e_all, 0)
 
 
 ##################################################
@@ -325,28 +266,22 @@ py_x_all = tf.reduce_mean(py_x_e_all, 0)
 # cross entropy loss
 cost = tf.reduce_mean(-tf.multiply(tf.log(py_x), Y))
 
-cost2 = tf.reduce_mean(-tf.multiply(tf.log(py_x_all), Y_all))
+
 
 # cost = tf.reduce_mean(tf.nn.cross_entropy_with_logits(py_x, Y))
 
-train_step_nodes = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost,var_list=[w,w2,w3,w4_ensemble,w_d_ensemble])
+train_step = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost)
 
-train_step_leaves = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost2,var_list=[w_l_ensemble])
+
 
 predict = tf.argmax(py_x, 1)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-for i in range(1000):
-    # One epoch
-    for start, end in zip(range(0, len(trX), ALL_BATCH), range(ALL_BATCH, len(trX), ALL_BATCH)):
-        sess.run(train_step_leaves, feed_dict={X_all: trX[start:end], Y_all: trY[start:end],
-                                        p_keep_conv: 0.8, p_keep_hidden: 0.5})
-    
-    
+for i in range(50):
     for start, end in zip(range(0, len(trX), N_BATCH), range(N_BATCH, len(trX), N_BATCH)):
-        sess.run(train_step_nodes, feed_dict={X: trX[start:end], Y: trY[start:end],
+        sess.run(train, feed_dict={X: trX[start:end], Y: trY[start:end],
                                         p_keep_conv: 0.8, p_keep_hidden: 0.5})
     
     
