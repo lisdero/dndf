@@ -281,7 +281,7 @@ sess.run(tf.global_variables_initializer())
 
 for i in range(50):
     for start, end in zip(range(0, len(trX), N_BATCH), range(N_BATCH, len(trX), N_BATCH)):
-        sess.run(train, feed_dict={X: trX[start:end], Y: trY[start:end],
+        sess.run(train_step, feed_dict={X: trX[start:end], Y: trY[start:end],
                                         p_keep_conv: 0.8, p_keep_hidden: 0.5})
     
     
