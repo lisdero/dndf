@@ -218,5 +218,4 @@ for i in range(30):
     acc_cong[1,i]=i
     print('Epoch: %d, Test Accuracy: %f' % (i + 1, np.mean(results)))
 
-plt.plot(acc_cong[0],acc_cong[1])
-plt.show()
+
