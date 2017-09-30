@@ -278,7 +278,7 @@ predict = tf.argmax(py_x, 1)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
-
+acc_cong=np.zeros([2,50])
 for i in range(50):
     for start, end in zip(range(0, len(trX), N_BATCH), range(N_BATCH, len(trX), N_BATCH)):
         sess.run(train_step, feed_dict={X: trX[start:end], Y: trY[start:end],
@@ -292,4 +292,6 @@ for i in range(50):
         results.extend(np.argmax(teY[start:end], axis=1) ==
             sess.run(predict, feed_dict={X: teX[start:end], p_keep_conv: 1.0,
                                          p_keep_hidden: 1.0}))
+    acc_cong[0,i]=np.mean(results)
+    acc_cong[1,i]=i
     print('Epoch: %d, Test Accuracy: %f' % (i + 1, np.mean(results)))
