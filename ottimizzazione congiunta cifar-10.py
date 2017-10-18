@@ -49,6 +49,7 @@ def read_data(directory):
 
 import matplotlib.pyplot as plt
 import random
+import tima
 random.seed(1)
 
 names, data, labels = read_data('./cifar-10-batches-py')
@@ -62,6 +63,7 @@ N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
+epoch_time=[]
 import random
 random.seed(1)
 
@@ -288,6 +290,8 @@ for i in range(50):
     
     
     # Result on the test set
+    epoch_time.append(time.time())
+    print(np.diff(epoch_time))
     results = []
     for start, end in zip(range(0, len(teX), N_BATCH), range(N_BATCH, len(teX), N_BATCH)):
         results.extend(np.argmax(teY[start:end], axis=1) ==

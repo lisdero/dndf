@@ -56,7 +56,7 @@ names, data, labels = read_data('./cifar-10-batches-py')
 
 import tensorflow as tf
 import numpy as np
-
+import time
 
 DEPTH   = 3                 # Depth of a tree
 N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
@@ -64,7 +64,7 @@ N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
 ALL_BATCH = 300
-
+epoch_time=[]
 def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01,seed=1))
 
@@ -351,7 +351,8 @@ for i in range(50):
                                         p_keep_conv: 0.8, p_keep_hidden: 0.5})
     
     
-    
+    epoch_time.append(time.time())
+    print(np.diff(epoch_time))
     # Result on the test set
     results = []
     for start, end in zip(range(0, len(teX), N_BATCH), range(N_BATCH, len(teX), N_BATCH)):

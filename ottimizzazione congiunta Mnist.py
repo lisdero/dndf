@@ -211,6 +211,7 @@ for i in range(30):
         sess.run(train_step, feed_dict={X: trX[start:end], Y: trY[start:end],
                                         p_keep_conv: 0.8, p_keep_hidden: 0.5})
     epoch_time.append(time.time())
+    print(np.diff(epoch_time))
     # Result on the test set
     results = []
     for start, end in zip(range(0, len(teX), N_BATCH), range(N_BATCH, len(teX), N_BATCH)):
@@ -222,5 +223,5 @@ for i in range(30):
     print('Epoch: %d, Test Accuracy: %f' % (i + 1, np.mean(results)))
 
 
-print(epoch_time)
+
 

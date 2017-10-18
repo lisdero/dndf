@@ -1,13 +1,14 @@
 import tensorflow as tf
 import numpy as np
 import tensorflow.examples.tutorials.mnist.input_data as input_data
-
+import time
 DEPTH   = 3                 # Depth of a tree
 N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
 ALL_BATCH = 5000
+epoch_tima=[]
 import random
 random.seed(1)
 def init_weights(shape):
@@ -295,7 +296,8 @@ for i in range(30):
                                         p_keep_conv: 0.8, p_keep_hidden: 0.5})
     
     
-    
+    epoch_time.append(time.time())
+    print(np.diff(epoch_time))
     # Result on the test set
     results = []
     for start, end in zip(range(0, len(teX), N_BATCH), range(N_BATCH, len(teX), N_BATCH)):
