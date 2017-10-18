@@ -8,7 +8,7 @@ N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
 ALL_BATCH = 300
-epoch_tima=[]
+epoch_time=[]
 import random
 random.seed(1)
 def init_weights(shape):
