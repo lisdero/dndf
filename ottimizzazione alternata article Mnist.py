@@ -7,7 +7,7 @@ N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
-ALL_BATCH = 5000
+ALL_BATCH = 300
 epoch_tima=[]
 import random
 random.seed(1)
