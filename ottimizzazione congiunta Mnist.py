@@ -3,13 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow.examples.tutorials.mnist.input_data as input_data
 import random
+import time
 random.seed(1)
 DEPTH   = 3                 # Depth of a tree
 N_LEAF  = 2 ** (DEPTH + 1)  # Number of leaf node
 N_LABEL = 10                # Number of classes
 N_TREE  = 5                 # Number of trees (ensemble)
 N_BATCH = 128               # Number of data points per mini-batch
-
+epoch_time=[]
 
 def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01,seed=1))
@@ -209,6 +210,7 @@ for i in range(30):
     for start, end in zip(range(0, len(trX), N_BATCH), range(N_BATCH, len(trX), N_BATCH)):
         sess.run(train_step, feed_dict={X: trX[start:end], Y: trY[start:end],
                                         p_keep_conv: 0.8, p_keep_hidden: 0.5})
+    epoch_time.append(time.time())
     # Result on the test set
     results = []
     for start, end in zip(range(0, len(teX), N_BATCH), range(N_BATCH, len(teX), N_BATCH)):
@@ -219,4 +221,6 @@ for i in range(30):
     acc_cong[1,i]=i
     print('Epoch: %d, Test Accuracy: %f' % (i + 1, np.mean(results)))
 
+
+print(epoch_time)
 
