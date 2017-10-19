@@ -49,7 +49,7 @@ def read_data(directory):
 
 import matplotlib.pyplot as plt
 import random
-import tima
+import time
 random.seed(1)
 
 names, data, labels = read_data('./cifar-10-batches-py')
