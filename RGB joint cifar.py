@@ -16,7 +16,7 @@ import numpy as np
 
 def clean(data):
     imgs = data.reshape(data.shape[0], 3, 32, 32)
-    cropped_imgs = grayscale_imgs[:, :,2:30, 2:30]
+    cropped_imgs = imgs[:, :,2:30, 2:30]
     return cropped_imgs
 
 
@@ -126,7 +126,7 @@ for i in range(len(tesY)):
     
 
 
-X = tf.placeholder("float", [N_BATCH, 28, 28, 1])
+X = tf.placeholder("float", [N_BATCH, 28, 28, 3])
 Y = tf.placeholder("float", [N_BATCH, N_LABEL])
 
 
